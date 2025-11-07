@@ -1,0 +1,75 @@
+plugins {
+    id 'java'
+    id 'war'
+    id 'org.springframework.boot' version '3.5.7'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'eclipse-wtp'   // ★ WTP 설정 사용 시 필수
+}
+
+group = 'com.study'
+version = '0.0.1-SNAPSHOT'
+description = 'Demo project for Spring Boot'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.5'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // DB 드라이버
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.5'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // === JSP 사용 시 (Jakarta 체계) ===
+    // 서블릿 API는 컨테이너가 제공 → 컴파일만 참조
+    compileOnly 'jakarta.servlet:jakarta.servlet-api'
+
+    // JSTL (API + 구현체)
+    implementation 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api'
+    implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl'
+
+    // JSP 컴파일러 (Jasper)
+    // 외장 톰캣에 배포(WAR)할 거면 보통 providedRuntime가 안전
+    providedRuntime 'org.apache.tomcat.embed:tomcat-embed-jasper'
+
+    // 외장 톰캣을 사용할 거라면 내장 톰캣은 provided로 두세요
+    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+}
+
+// ★ 여기! 잘못 썼던 부분을 올바른 중첩 블록으로 변경
+eclipse {
+    wtp {
+        facet {
+            facet name: 'jst.web',  version: '5.0'  // Dynamic Web Module
+            facet name: 'jst.java', version: '17'   // Java 17
+        }
+        component {
+            contextPath = '/05_Mybatis_bbs' // 원하면 수정
+        }
+    }
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
